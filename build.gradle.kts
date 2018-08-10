@@ -1,5 +1,7 @@
 plugins {
     java
+    `build-scan`
+
 }
 dependencies {
     compile("com.google.guava:guava:26.0-jre")
@@ -7,6 +9,15 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+buildScan {
+    setTermsOfServiceUrl("https://gradle.com/terms-of-service")
+    setTermsOfServiceAgree("yes")
+}
+
+//build-scan {
+// server("http://a.bc/")
+//}
 
 version = "1.1"
 
@@ -16,13 +27,17 @@ tasks {
         baseName = "AppDist"
         val baseDir = "$baseName-$version"
 
-        into("lib").from(project.configurations.runtime)
+        from(project.configurations.runtime){
+            into( "$baseDir/lib")
+        }
 
-        into(baseDir)
-                .from(project.file("src/dist/otherFiles"))
+        from(project.file("src/dist/otherFiles"))
                 .from(project.file("src/dist/scriptsWin"))
-                .from(file("src/dist/scriptsUnix")) { fileMode = 755 }
-        
+                .from(file("src/dist/scriptsUnix")) {
+                    into(baseDir)
+                    fileMode = 755
+                }
+
     }.dependsOn("jar")
 }
 
